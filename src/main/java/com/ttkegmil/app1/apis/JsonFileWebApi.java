@@ -12,8 +12,7 @@ public class JsonFileWebApi {
     public String readStore(@PathVariable String store, @PathVariable String key) throws IOException {
         JsonStore objStore = JsonStore.getStore(store);
 
-        String out = objStore.getObjectMapper().writeValueAsString(objStore.read(key));
-        return out;
+        return objStore.getObjectMapper().writeValueAsString(objStore.read(key));
     }
 
     @GetMapping("/enumerate/{store}")
