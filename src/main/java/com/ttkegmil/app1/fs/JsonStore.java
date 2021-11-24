@@ -3,15 +3,14 @@ package com.ttkegmil.app1.fs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
 public class JsonStore {
-    File handle;
+    private final File handle;
+    private final ObjectMapper mapper;
 
-    private static Map<String, JsonStore> storage = new HashMap<>();
+    private static final Map<String, JsonStore> storage = new HashMap<>();
     private static final String PREFIX_PATH = "store";
     public static JsonStore getStore(String storeName)
     {
@@ -26,23 +25,29 @@ public class JsonStore {
     private JsonStore(String filename)
     {
         handle = new File(filename);
-        if(!handle.exists())
+        mapper = new ObjectMapper();
+        try
         {
-            try{
-                handle.createNewFile();
-            }
-            catch (IOException e)
+            boolean file_new = handle.createNewFile();
+            if(file_new)
             {
-                e.printStackTrace();
+                // Write new empty object to newly created file
+                FileWriter writer = new FileWriter(handle);
+                writer.write("{}");
+                writer.close();
             }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 
-    public Map<String, Object> enumerate() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+    public Map<String, Object> enumerate() {
         HashMap<String, Object> data;
 
-        try {
+        try
+        {
             data = mapper.readValue(handle, HashMap.class);
         }
         catch (Exception e)
@@ -67,20 +72,19 @@ public class JsonStore {
     }
     public void write(String key, Object value) throws IOException {
         Map<String, Object> data = enumerate();
-
         data.put(key, value);
-
-        ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(handle, data);
     }
 
     public void writeBatch(Map<String, Object> entries) throws IOException
     {
         Map<String, Object> data = enumerate();
-
         data.putAll(entries);
-
-        ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(handle, data);
+    }
+
+    public ObjectMapper getObjectMapper()
+    {
+        return mapper;
     }
 }

@@ -8,10 +8,20 @@ import java.util.Map;
 
 @RestController
 public class JsonFileWebApi {
-    @GetMapping("/read/{store}")
-    public String readStore(@PathVariable String store) throws IOException {
-        Map<String, Object> data = JsonStore.getStore(store).enumerate();
-        return data.toString();
+    @GetMapping("/read/{store}/{key}")
+    public String readStore(@PathVariable String store, @PathVariable String key) throws IOException {
+        JsonStore objStore = JsonStore.getStore(store);
+
+        String out = objStore.getObjectMapper().writeValueAsString(objStore.read(key));
+        return out;
+    }
+
+    @GetMapping("/enumerate/{store}")
+    public String enumerateStore(@PathVariable String store) throws IOException {
+        JsonStore objStore = JsonStore.getStore(store);
+
+        String out = objStore.getObjectMapper().writeValueAsString(objStore.enumerate());
+        return out;
     }
 
     @PostMapping("/write/{store}")
